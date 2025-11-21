@@ -1,0 +1,47 @@
+name: Deploy Lambdas
+
+on: 
+    push: 
+        branches: 
+            - main
+
+permissions:
+    id-token: write
+    contents: read
+
+env:
+    AWS_REGION: ca-central-1
+
+jobs:
+    deploy_cleaning_lambda:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v6
+
+            - name: Configure AWS Credentials (OIDC)
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+                aws-region: ${{ env.AWS_REGION }}
+
+            - name: Set up Python
+              uses: actions/setup-python@v6
+              with:
+                  python-version: '3.12'
+            
+            - name: Package Cleaning Lambda
+              run: |
+                    mkdir -p build/cleaning
+                    pip install -r requirements.txt -t build/cleaning
+                    cp -r src/cleaning build/cleaning/
+                    cp -r src/utils build/cleaning/
+                    cd build/cleaning
+                    zip -r ../cleaning_lambda.zip .
+
+            - name: Deploy Cleaning Lambda
+              run: |
+                aws lambda update-function-code \
+                  --function-name cleaning-lambda \
+                  --zip-file fileb://build/cleaning_lambda.zip \
+                  --region $AWS_REGION
