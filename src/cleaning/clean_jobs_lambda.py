@@ -1,4 +1,4 @@
-# cleaning/clean_jobs_lambda.py
+# cleaning.clean_jobs_lambda.py
 import os
 from urllib.parse import unquote_plus
 

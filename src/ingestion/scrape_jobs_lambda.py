@@ -1,4 +1,4 @@
-# /ingestion/srape_jobs_lambda.py
+# ingestion.srape_jobs_lambda.py
 import os
 from datetime import datetime, UTC
 from serpapi import GoogleSearch
