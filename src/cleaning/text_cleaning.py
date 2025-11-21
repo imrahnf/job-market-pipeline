@@ -1,4 +1,4 @@
-# src/cleaning/text_cleaning.py
+# /cleaning/text_cleaning.py
 import re
 import unicodedata
 
