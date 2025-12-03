@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job Market Pipeline — ETL Showcase</title>
+  <meta name="description" content="Static showcase of the Job Market ETL pipeline: architecture, process, and computed insights." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Mermaid for diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- Vega-Lite for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="nav">
+        <div class="brand">Job Market Pipeline</div>
+        <div class="links">
+          <a href="#overview">Overview</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#process">Process</a>
+          <a href="#insights">Insights</a>
+          <a href="#comparison">Before/After</a>
+          <a href="#repo" target="_blank" rel="noopener">Code</a>
+        </div>
+      </nav>
+      <div class="hero">
+        <h1>ETL Showcase: From Scrape ➜ Clean ➜ Insight</h1>
+        <p>A static, no-backend walkthrough of the pipeline that ingests job listings, cleans and enriches them, and surfaces key insights — designed for portfolio viewing.</p>
+        <div class="hero-cta">
+          <a class="button" href="#insights">View Insights</a>
+          <a class="button button-secondary" href="#architecture">See Architecture</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="overview" class="section">
+      <h2>Overview</h2>
+      <p>
+        This page summarizes the end-to-end ETL pipeline for job postings:
+        scraping raw data, cleaning and normalization, and computing
+        high-level metrics. Everything here is static and rendered in the browser — no backend required.
+      </p>
+      <div class="stats" id="metric-cards" aria-live="polite"></div>
+    </section>
+
+    <section id="architecture" class="section">
+      <h2>Architecture</h2>
+      <div class="diagram">
+        <pre class="mermaid">
+flowchart LR
+    A[Scrape Jobs Lambda\n`src/ingestion/scrape_jobs_lambda.py`] -->|SerpAPI JSON| B[(S3 Raw Bucket\n`demo/*_RAW.json`)]
+    B --> C[Clean Jobs Lambda\n`src/cleaning/clean_jobs_lambda.py`]
+    C --> C1[Text Cleaning\n`text_cleaning.py`]
+    C --> C2[Salary Parse\n`salary_parser.py`]
+    C --> C3[Skill Extract\n`skill_extractor.py`]
+    C1 --> D[(S3 Clean Bucket\n`demo/*_CLEAN.json`)]
+    C2 --> D
+    C3 --> D
+    D --> E[Notebook Analysis\n`notebooks/analysis.ipynb`]
+    D --> F[Static Showcase (this page)]
+        </pre>
+      </div>
+      <p class="small">Implementation refs: `src/ingestion/`, `src/cleaning/`, `src/utils/s3_io.py`.</p>
+    </section>
+
+    <section id="process" class="section">
+      <h2>Process</h2>
+      <ol class="process">
+        <li>
+          <strong>Ingestion:</strong> Scrape job listings via SerpAPI and store raw JSON.
+        </li>
+        <li>
+          <strong>Cleaning:</strong> Normalize fields, remove boilerplate, and standardize locations.
+        </li>
+        <li>
+          <strong>Parsing & Enrichment:</strong> Extract salary ranges and skills from text.
+        </li>
+        <li>
+          <strong>Outputs:</strong> Save cleaned JSON for analysis and reporting.
+        </li>
+      </ol>
+    </section>
+
+    <section id="insights" class="section">
+      <h2>Computed Insights</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Top Skills</h3>
+          <div id="skills-chart" class="chart"></div>
+        </div>
+        <div class="card">
+          <h3>Salary Distribution</h3>
+          <div id="salary-chart" class="chart"></div>
+          <p id="salary-note" class="small"></p>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Top Locations</h3>
+          <ul id="top-locations" class="list"></ul>
+        </div>
+        <div class="card">
+          <h3>Data Coverage</h3>
+          <ul id="coverage" class="list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="comparison" class="section">
+      <h2>Before / After</h2>
+      <p>Examples comparing raw vs cleaned records for a few listings.</p>
+      <div id="comparisons" class="comparisons" aria-live="polite"></div>
+    </section>
+
+    <section id="repo" class="section">
+      <h2>Code & Data</h2>
+      <ul class="list">
+        <li><a href="https://github.com/imrahnf/job-market-pipeline" target="_blank" rel="noopener">GitHub Repository</a></li>
+        <li>Cleaned sample: <code>frontend/data/clean.json</code></li>
+        <li>Raw sample: <code>frontend/data/raw.json</code></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© <span id="year"></span> Job Market Pipeline — Static ETL Showcase</p>
+    </div>
+  </footer>
+
+  <script src="scripts/main.js" type="module"></script>
+</body>
+</html>
